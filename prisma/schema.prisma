@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Priority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  color     String     @default("#3B82F6")
+  icon      String?
+  sortOrder Int        @default(0)
+  collapsed Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  items     TodoItem[]
+}
+
+model TodoItem {
+  id                    String     @id @default(cuid())
+  shortId               Int        @default(autoincrement())
+  title                 String
+  description           String?
+  completed             Boolean    @default(false)
+  priority              Priority   @default(NONE)
+  dueDate               DateTime?
+  sortOrder             Int        @default(0)
+  depth                 Int        @default(0)
+  categoryId            String
+  category              Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  parentId              String?
+  parent                TodoItem?  @relation("TodoSubtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks              TodoItem[] @relation("TodoSubtasks")
+  googleCalendarEventId String?
+  googleDriveFileIds    String[]   @default([])
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  @@unique([shortId])
+  @@index([categoryId])
+  @@index([parentId])
+}
+
+model GoogleOAuthToken {
+  id           String   @id @default("singleton")
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  scope        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
