@@ -35,7 +35,7 @@ export async function POST(request: Request) {
   const { text } = await generateText({
     model: anthropic("claude-sonnet-4-20250514"),
     prompt: prompts[action],
-    maxTokens: 500,
+    maxOutputTokens: 500,
   });
 
   try {
