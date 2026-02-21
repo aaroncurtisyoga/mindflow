@@ -18,17 +18,17 @@ export function MobileHeader({
   }
 
   return (
-    <div className="flex items-center gap-3 border-b border-border px-4 py-3 md:hidden">
+    <div className="flex items-center gap-3 border-b border-border px-3 py-2 md:hidden">
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 shrink-0"
+        className="h-10 w-10 shrink-0"
         onClick={() => setOpen(true)}
       >
         <Menu className="h-5 w-5" />
       </Button>
       <div
-        className="h-2.5 w-2.5 shrink-0 rounded-full"
+        className="h-3 w-3 shrink-0 rounded-full"
         style={{ backgroundColor: categoryColor }}
       />
       <h1 className="flex-1 truncate text-lg font-semibold tracking-tight">
@@ -37,10 +37,10 @@ export function MobileHeader({
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 shrink-0"
+        className="h-10 w-10 shrink-0"
         onClick={handleSearch}
       >
-        <Search className="h-4 w-4" />
+        <Search className="h-5 w-5" />
       </Button>
     </div>
   );

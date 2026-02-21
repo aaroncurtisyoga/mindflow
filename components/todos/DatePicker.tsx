@@ -46,21 +46,21 @@ export function DatePicker({ date, onChange, className }: DatePickerProps) {
           variant="ghost"
           size="sm"
           className={cn(
-            "h-6 gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground",
+            "h-8 md:h-6 gap-1 px-2 md:px-1.5 text-xs text-muted-foreground hover:text-foreground",
             date && relativeLabel?.overdue && "text-red-400 hover:text-red-300",
             className
           )}
         >
-          <CalendarIcon className="h-3 w-3" />
+          <CalendarIcon className="h-3.5 w-3.5 md:h-3 md:w-3" />
           {relativeLabel ? relativeLabel.label : "Set date"}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <div className="flex gap-1 border-b border-border p-2">
+        <div className="flex flex-wrap gap-1 border-b border-border p-2">
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 text-xs"
+            className="h-9 md:h-7 text-sm md:text-xs"
             onClick={() => selectAndClose(today)}
           >
             Today
@@ -68,7 +68,7 @@ export function DatePicker({ date, onChange, className }: DatePickerProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 text-xs"
+            className="h-9 md:h-7 text-sm md:text-xs"
             onClick={() => selectAndClose(tomorrow)}
           >
             Tomorrow
@@ -76,7 +76,7 @@ export function DatePicker({ date, onChange, className }: DatePickerProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 text-xs"
+            className="h-9 md:h-7 text-sm md:text-xs"
             onClick={() => selectAndClose(nextWeek)}
           >
             Next Week
@@ -85,7 +85,7 @@ export function DatePicker({ date, onChange, className }: DatePickerProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 text-xs text-muted-foreground"
+              className="h-9 md:h-7 text-sm md:text-xs text-muted-foreground"
               onClick={() => selectAndClose(null)}
             >
               <X className="mr-1 h-3 w-3" />

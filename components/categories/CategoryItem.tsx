@@ -53,7 +53,7 @@ export function CategoryItem({
             if (e.key === "Enter") handleRename();
             if (e.key === "Escape") setIsEditing(false);
           }}
-          className="h-8 text-sm"
+          className="h-10 md:h-8 text-base md:text-sm"
           autoFocus
         />
       </div>
@@ -65,7 +65,7 @@ export function CategoryItem({
       href={`/category/${category.id}`}
       onClick={close}
       className={cn(
-        "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+        "group flex items-center gap-3 rounded-md px-3 py-2.5 md:py-2 text-base md:text-sm transition-colors",
         isActive
           ? "bg-accent text-accent-foreground"
           : "text-sidebar-foreground hover:bg-accent/50"
@@ -82,7 +82,7 @@ export function CategoryItem({
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 md:opacity-0 md:group-hover:opacity-100"
+            className="h-8 w-8 md:h-6 md:w-6 md:opacity-0 md:group-hover:opacity-100"
             onClick={(e) => e.preventDefault()}
           >
             <MoreHorizontal className="h-3.5 w-3.5" />

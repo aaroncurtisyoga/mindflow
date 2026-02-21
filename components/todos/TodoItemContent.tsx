@@ -146,7 +146,7 @@ export function TodoItemContent({
       {showGripHandle && (
         <div
           ref={handleRef as React.Ref<HTMLDivElement>}
-          className="flex h-4 w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 md:opacity-0 transition-opacity md:group-hover:opacity-100 active:cursor-grabbing"
+          className="flex h-6 w-6 md:h-4 md:w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 md:opacity-0 transition-opacity md:group-hover:opacity-100 active:cursor-grabbing"
         >
           <GripVertical className="h-4 w-4" />
         </div>
@@ -155,7 +155,7 @@ export function TodoItemContent({
       <AnimatedCheckbox
         checked={todo.completed}
         onCheckedChange={handleToggle}
-        className="shrink-0"
+        className="shrink-0 h-5 w-5 md:h-4 md:w-4"
       />
 
       <span
@@ -166,78 +166,118 @@ export function TodoItemContent({
         #{todo.shortId}
       </span>
 
-      {isEditing ? (
-        <Input
-          value={editTitle}
-          onChange={(e) => setEditTitle(e.target.value)}
-          onBlur={handleSaveTitle}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSaveTitle();
-            if (e.key === "Escape") {
-              setEditTitle(todo.title);
-              setIsEditing(false);
-            }
-          }}
-          className="h-7 flex-1 text-sm"
-          autoFocus
-        />
-      ) : (
-        <span
-          className={cn(
-            "flex-1 cursor-text truncate text-sm transition-all",
-            todo.completed && "text-muted-foreground",
-            justCompleted && "line-through text-muted-foreground"
+      <div className="flex-1 min-w-0">
+        {isEditing ? (
+          <Input
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            onBlur={handleSaveTitle}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSaveTitle();
+              if (e.key === "Escape") {
+                setEditTitle(todo.title);
+                setIsEditing(false);
+              }
+            }}
+            className="h-8 md:h-7 flex-1 text-base md:text-sm"
+            autoFocus
+          />
+        ) : (
+          <span
+            className={cn(
+              "block truncate text-base md:text-sm cursor-text transition-all",
+              todo.completed && "text-muted-foreground",
+              justCompleted && "line-through text-muted-foreground"
+            )}
+            onClick={isMobile ? () => { setEditTitle(todo.title); setIsEditing(true); } : undefined}
+            onDoubleClick={!isMobile ? () => { setEditTitle(todo.title); setIsEditing(true); } : undefined}
+          >
+            {todo.completed ? (
+              <s className="decoration-muted-foreground/50">{todo.title}</s>
+            ) : (
+              todo.title
+            )}
+          </span>
+        )}
+
+        {/* Mobile: meta row below title */}
+        {!isEditing && isMobile && (
+          <div className="flex items-center gap-2 mt-0.5">
+            {showCategoryBadge && categoryName && (
+              <span
+                className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                style={{
+                  backgroundColor: `${categoryColor}20`,
+                  color: categoryColor,
+                }}
+              >
+                {categoryName}
+              </span>
+            )}
+            {todo.priority !== "NONE" && (
+              <button
+                onClick={cyclePriority}
+                className="flex items-center gap-1 text-[11px] text-muted-foreground"
+              >
+                <div
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: PRIORITY_COLORS[todo.priority] }}
+                />
+                {PRIORITY_LABELS[todo.priority]}
+              </button>
+            )}
+            <DatePicker
+              date={todo.dueDate}
+              onChange={handleDateChange}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: inline meta */}
+      {!isMobile && (
+        <>
+          {showCategoryBadge && categoryName && (
+            <span
+              className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium"
+              style={{
+                backgroundColor: `${categoryColor}20`,
+                color: categoryColor,
+              }}
+            >
+              {categoryName}
+            </span>
           )}
-          onClick={isMobile ? () => { setEditTitle(todo.title); setIsEditing(true); } : undefined}
-          onDoubleClick={!isMobile ? () => { setEditTitle(todo.title); setIsEditing(true); } : undefined}
-        >
-          {todo.completed ? (
-            <s className="decoration-muted-foreground/50">{todo.title}</s>
-          ) : (
-            todo.title
+
+          {todo.priority !== "NONE" && (
+            <button
+              onClick={cyclePriority}
+              className="h-2 w-2 shrink-0 rounded-full transition-transform hover:scale-150"
+              style={{ backgroundColor: PRIORITY_COLORS[todo.priority] }}
+              title={`${PRIORITY_LABELS[todo.priority]} priority — click to cycle`}
+            />
           )}
-        </span>
+
+          <DatePicker
+            date={todo.dueDate}
+            onChange={handleDateChange}
+          />
+
+          <span
+            className="shrink-0 font-mono text-[10px] text-muted-foreground/40"
+            title={`${isUpdated ? "Updated" : "Created"}: ${new Date(timestamp).toLocaleString()}`}
+          >
+            {isUpdated ? "edited " : ""}{formattedTimestamp}
+          </span>
+        </>
       )}
-
-      {showCategoryBadge && categoryName && (
-        <span
-          className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium"
-          style={{
-            backgroundColor: `${categoryColor}20`,
-            color: categoryColor,
-          }}
-        >
-          {categoryName}
-        </span>
-      )}
-
-      {todo.priority !== "NONE" && (
-        <button
-          onClick={cyclePriority}
-          className="h-2 w-2 shrink-0 rounded-full transition-transform hover:scale-150"
-          style={{ backgroundColor: PRIORITY_COLORS[todo.priority] }}
-          title={`${PRIORITY_LABELS[todo.priority]} priority — click to cycle`}
-        />
-      )}
-
-      <DatePicker
-        date={todo.dueDate}
-        onChange={handleDateChange}
-      />
-
-      <span
-        className="hidden shrink-0 font-mono text-[10px] text-muted-foreground/40 md:inline"
-        title={`${isUpdated ? "Updated" : "Created"}: ${new Date(timestamp).toLocaleString()}`}
-      >
-        {isUpdated ? "edited " : ""}{formattedTimestamp}
-      </span>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 shrink-0 md:opacity-0 transition-opacity md:group-hover:opacity-100"
+            className="h-9 w-9 md:h-7 md:w-7 shrink-0 md:opacity-0 transition-opacity md:group-hover:opacity-100"
           >
             <MoreHorizontal className="h-4 w-4" />
           </Button>

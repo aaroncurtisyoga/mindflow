@@ -154,7 +154,7 @@ export function TodoList({
         </ScrollArea>
       </DndProvider>
 
-      <div className="border-t border-border p-3">
+      <div className="border-t border-border p-3 pb-6 md:pb-3">
         <CreateTodoInput categoryId={categoryId} />
       </div>
 

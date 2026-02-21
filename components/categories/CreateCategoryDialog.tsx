@@ -52,16 +52,16 @@ export function CreateCategoryDialog({
             onChange={(e) => setName(e.target.value)}
             autoFocus
           />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3 md:gap-2">
             {COLORS.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setColor(c)}
-                className="h-6 w-6 rounded-full transition-transform"
+                className="h-9 w-9 md:h-6 md:w-6 rounded-full transition-transform"
                 style={{
                   backgroundColor: c,
-                  transform: color === c ? "scale(1.25)" : "scale(1)",
+                  transform: color === c ? "scale(1.15)" : "scale(1)",
                   outline: color === c ? "2px solid white" : "none",
                   outlineOffset: "2px",
                 }}

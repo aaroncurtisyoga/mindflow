@@ -21,20 +21,20 @@ export function CreateTodoInput({ categoryId }: { categoryId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex items-center gap-2">
-      <Plus className="h-4 w-4 shrink-0 text-muted-foreground" />
+      <Plus className="h-5 w-5 md:h-4 md:w-4 shrink-0 text-muted-foreground" />
       <Input
         placeholder="Add a new item..."
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         disabled={isPending}
-        className="h-9 border-none bg-transparent text-sm shadow-none focus-visible:ring-0"
+        className="h-11 md:h-9 border-none bg-transparent text-base md:text-sm shadow-none focus-visible:ring-0"
       />
       {title.trim() && (
         <Button
           type="submit"
           size="icon"
           disabled={isPending}
-          className="h-7 w-7 shrink-0 rounded-full"
+          className="h-9 w-9 md:h-7 md:w-7 shrink-0 rounded-full"
         >
           <ArrowUp className="h-4 w-4" />
         </Button>

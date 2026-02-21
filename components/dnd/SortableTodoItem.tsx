@@ -115,7 +115,7 @@ export function SortableTodoItem({
         tabIndex={0}
         data-todo-id={todo.id}
         className={cn(
-          "group relative flex items-center gap-2 rounded-md px-2 py-2.5 transition-colors bg-background",
+          "group relative flex items-center gap-2 rounded-md px-2 py-3 md:py-2.5 transition-colors bg-background",
           !isDragging && "hover:bg-accent/50",
           todo.completed && "opacity-60",
           "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:outline-none"
