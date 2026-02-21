@@ -184,7 +184,7 @@ export function CategorySidebar({
         )}
       </ScrollArea>
 
-      <div className="border-t border-border p-2">
+      <div className="border-t border-border p-2" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
         <form action={logout}>
           <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground">
             <LogOut className="mr-2 h-4 w-4" />
