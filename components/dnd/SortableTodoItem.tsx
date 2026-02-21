@@ -148,7 +148,8 @@ export function SortableTodoItem({
             "flex-1 cursor-text truncate text-sm",
             todo.completed && "line-through text-muted-foreground"
           )}
-          onDoubleClick={() => setIsEditing(true)}
+          onClick={isMobile ? () => setIsEditing(true) : undefined}
+          onDoubleClick={!isMobile ? () => setIsEditing(true) : undefined}
         >
           {todo.title}
         </span>
