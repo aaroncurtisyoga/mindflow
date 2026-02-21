@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { GripVertical, Trash2, MoreHorizontal, FileText, Copy } from "lucide-react";
+import { GripVertical, Trash2, MoreHorizontal, FileText, Copy, Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -79,6 +80,7 @@ export function TodoItemContent({
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editDescription, setEditDescription] = useState(todo.description ?? "");
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [mobileDateOpen, setMobileDateOpen] = useState(false);
 
   function handleToggle() {
     const wasCompleted = todo.completed;
@@ -187,14 +189,6 @@ export function TodoItemContent({
         className="shrink-0 h-5 w-5 md:h-4 md:w-4"
       />
 
-      <span
-        className="hidden shrink-0 cursor-pointer font-mono text-sm text-muted-foreground/50 hover:text-muted-foreground md:inline"
-        onClick={handleCopyId}
-        title="Click to copy"
-      >
-        #{todo.shortId}
-      </span>
-
       <div className="flex-1 min-w-0">
         {isEditing ? (
           <Input
@@ -261,44 +255,6 @@ export function TodoItemContent({
           />
         )}
 
-        {/* Mobile: meta row below title */}
-        {!isEditing && isMobile && (
-          <div className="flex items-center gap-2 mt-0.5">
-            <button
-              onClick={handleCopyId}
-              className="shrink-0 font-mono text-[11px] text-muted-foreground/50 active:text-muted-foreground"
-            >
-              #{todo.shortId}
-            </button>
-            {showCategoryBadge && categoryName && (
-              <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-                style={{
-                  backgroundColor: `${categoryColor}20`,
-                  color: categoryColor,
-                }}
-              >
-                {categoryName}
-              </span>
-            )}
-            {todo.priority !== "NONE" && (
-              <button
-                onClick={cyclePriority}
-                className="flex items-center gap-1 text-[11px] text-muted-foreground"
-              >
-                <div
-                  className="h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: PRIORITY_COLORS[todo.priority] }}
-                />
-                {PRIORITY_LABELS[todo.priority]}
-              </button>
-            )}
-            <DatePicker
-              date={todo.dueDate}
-              onChange={handleDateChange}
-            />
-          </div>
-        )}
       </div>
 
       {/* Desktop: inline meta */}
@@ -334,6 +290,14 @@ export function TodoItemContent({
               title={`${PRIORITY_LABELS[todo.priority]} priority — click to cycle`}
             />
           )}
+
+          <button
+            className="shrink-0 text-muted-foreground/30 hover:text-muted-foreground"
+            onClick={handleCopyId}
+            title={`Copy #${todo.shortId}`}
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </button>
 
           <DatePicker
             date={todo.dueDate}
@@ -384,6 +348,12 @@ export function TodoItemContent({
             <FileText className="mr-2 h-4 w-4" />
             {todo.description ? "Edit notes" : "Add notes"}
           </DropdownMenuItem>
+          {isMobile && (
+            <DropdownMenuItem onClick={() => setMobileDateOpen(true)}>
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {todo.dueDate ? formatRelativeDate(todo.dueDate).label : "Set date"}
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           {PRIORITY_ORDER.map((p) => (
             <DropdownMenuItem key={p} onClick={() => handlePriorityChange(p)}>
@@ -425,6 +395,64 @@ export function TodoItemContent({
               Delete
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mobile date picker dialog */}
+      <Dialog open={mobileDateOpen} onOpenChange={setMobileDateOpen}>
+        <DialogContent className="max-w-[320px] p-0">
+          <DialogHeader className="px-4 pt-4 pb-0">
+            <DialogTitle>Set date</DialogTitle>
+            <DialogDescription className="sr-only">Choose a due date</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-wrap gap-2 px-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const d = new Date(); d.setHours(0,0,0,0);
+                handleDateChange(d); setMobileDateOpen(false);
+              }}
+            >
+              Today
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + 1);
+                handleDateChange(d); setMobileDateOpen(false);
+              }}
+            >
+              Tomorrow
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const d = new Date(); d.setHours(0,0,0,0);
+                const dow = d.getDay(); d.setDate(d.getDate() + (dow === 0 ? 1 : 8 - dow));
+                handleDateChange(d); setMobileDateOpen(false);
+              }}
+            >
+              Next week
+            </Button>
+            {todo.dueDate && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground"
+                onClick={() => { handleDateChange(null); setMobileDateOpen(false); }}
+              >
+                <X className="mr-1 h-3 w-3" /> Clear
+              </Button>
+            )}
+          </div>
+          <Calendar
+            mode="single"
+            selected={todo.dueDate ?? undefined}
+            onSelect={(d) => { handleDateChange(d ?? null); setMobileDateOpen(false); }}
+          />
         </DialogContent>
       </Dialog>
     </>
