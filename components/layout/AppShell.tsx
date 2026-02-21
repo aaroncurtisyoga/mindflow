@@ -31,7 +31,7 @@ function AppShellInner({
   const { open, setOpen } = useMobileSidebar();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-dvh overflow-hidden bg-background">
       <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar md:block">
         <CategorySidebar categories={categories} todayCount={todayCount} viewCounts={viewCounts} />
       </aside>
