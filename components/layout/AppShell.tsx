@@ -83,7 +83,7 @@ function AppShellInner({
 
       {/* Mobile: simple full-width layout */}
       {isMobile === true && (
-        <main className="h-full overflow-auto">{children}</main>
+        <main className="h-full overflow-hidden">{children}</main>
       )}
 
       {/* Desktop: resizable panels (only after we know viewport) */}
