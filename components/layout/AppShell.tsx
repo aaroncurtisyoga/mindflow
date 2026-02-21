@@ -4,7 +4,9 @@ import { CategorySidebar } from "@/components/categories/CategorySidebar";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { useRealtimeSync } from "@/lib/hooks/useRealtimeSync";
 import { MobileSidebarProvider, useMobileSidebar } from "@/lib/contexts/MobileSidebarContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { VisuallyHidden } from "radix-ui";
 import type { Category } from "@prisma/client";
 
@@ -29,13 +31,11 @@ function AppShellInner({
 }) {
   useRealtimeSync();
   const { open, setOpen } = useMobileSidebar();
+  const isMobile = useIsMobile();
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background">
-      <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar md:block">
-        <CategorySidebar categories={categories} todayCount={todayCount} viewCounts={viewCounts} />
-      </aside>
-
+    <div className="h-dvh overflow-hidden bg-background">
+      {/* Mobile: Sheet drawer */}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-64 p-0 bg-sidebar" showCloseButton={false}>
           <VisuallyHidden.Root>
@@ -45,7 +45,20 @@ function AppShellInner({
         </SheetContent>
       </Sheet>
 
-      <main className="flex-1 overflow-auto">{children}</main>
+      {isMobile ? (
+        <main className="h-full overflow-auto">{children}</main>
+      ) : (
+        <ResizablePanelGroup orientation="horizontal" className="h-full">
+          <ResizablePanel defaultSize={20} minSize={12} maxSize={35} className="bg-sidebar">
+            <CategorySidebar categories={categories} todayCount={todayCount} viewCounts={viewCounts} />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={80}>
+            <main className="h-full overflow-auto">{children}</main>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      )}
+
       <CommandPalette categories={categories} />
     </div>
   );
