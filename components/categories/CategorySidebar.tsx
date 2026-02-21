@@ -3,7 +3,7 @@
 import { useState, useTransition, useOptimistic } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Plus, LogOut, Sun, AlertTriangle, CalendarDays, Flame } from "lucide-react";
+import { Plus, LogOut, AlertTriangle, CalendarDays, Flame, PanelLeftClose, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DndProvider } from "@/components/dnd/DndProvider";
@@ -11,6 +11,7 @@ import { SortableCategory } from "@/components/dnd/SortableCategory";
 import { CreateCategoryDialog } from "./CreateCategoryDialog";
 import { reorderCategories } from "@/lib/actions/category.actions";
 import { logout } from "@/lib/actions/auth.actions";
+import { useMobileSidebar } from "@/lib/contexts/MobileSidebarContext";
 import { cn } from "@/lib/utils";
 import type { Category } from "@prisma/client";
 type DragEndEvent = { operation: { source: { id: string | number; data: unknown } | null; target: { id: string | number; data: unknown } | null } };
@@ -25,14 +26,15 @@ interface ViewCounts {
 
 export function CategorySidebar({
   categories,
-  todayCount = 0,
   viewCounts = { overdue: 0, upcoming: 0, highPriority: 0 },
+  onCollapse,
 }: {
   categories: CategoryWithCount[];
-  todayCount?: number;
   viewCounts?: ViewCounts;
+  onCollapse?: () => void;
 }) {
   const pathname = usePathname();
+  const { close } = useMobileSidebar();
   const [createOpen, setCreateOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimisticCategories, setOptimisticCategories] = useOptimistic(categories);
@@ -59,34 +61,33 @@ export function CategorySidebar({
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-4 py-4">
         <h2 className="text-lg font-semibold tracking-tight">Mindflow</h2>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 md:h-8 md:w-8"
-          onClick={() => setCreateOpen(true)}
-        >
-          <Plus className="h-5 w-5 md:h-4 md:w-4" />
-        </Button>
+        {onCollapse && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground"
+            onClick={onCollapse}
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <ScrollArea className="flex-1 px-2">
-        {/* Today */}
+        {/* Overview */}
         <Link
-          href="/today"
+          href="/overview"
+          onClick={close}
           className={cn(
             "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-2 text-base md:text-[15px] transition-colors",
-            pathname === "/today"
+            pathname === "/overview"
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
           )}
         >
-          <Sun className="h-4 w-4 text-yellow-500" />
-          <span className="flex-1">Today</span>
-          {todayCount > 0 && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-xs font-medium text-primary">
-              {todayCount}
-            </span>
-          )}
+          <LayoutDashboard className="h-4 w-4 text-blue-500" />
+          <span className="flex-1">Overview</span>
         </Link>
 
         {/* Smart Views */}
@@ -98,6 +99,7 @@ export function CategorySidebar({
         <div className="space-y-0.5">
           <Link
             href="/view/overdue"
+            onClick={close}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-[15px] transition-colors",
               pathname === "/view/overdue"
@@ -115,6 +117,7 @@ export function CategorySidebar({
           </Link>
           <Link
             href="/view/upcoming"
+            onClick={close}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-[15px] transition-colors",
               pathname === "/view/upcoming"
@@ -132,6 +135,7 @@ export function CategorySidebar({
           </Link>
           <Link
             href="/view/high-priority"
+            onClick={close}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-[15px] transition-colors",
               pathname === "/view/high-priority"
@@ -150,10 +154,19 @@ export function CategorySidebar({
         </div>
 
         {/* Categories */}
-        <div className="mt-4 mb-2">
-          <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+        <div className="mt-4 mb-2 flex items-center justify-between px-3">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
             Categories
           </p>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-muted-foreground hover:text-foreground"
+            onClick={() => setCreateOpen(true)}
+            title="New category"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </Button>
         </div>
         <DndProvider onDragEnd={handleDragEnd}>
           <div className="space-y-1">

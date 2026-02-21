@@ -6,7 +6,7 @@ export default async function InboxPage() {
   const categories = await getCategories();
 
   if (categories.length > 0) {
-    redirect(`/category/${categories[0].id}`);
+    redirect("/overview");
   }
 
   return <EmptyInbox />;

@@ -99,48 +99,6 @@ export async function searchTodos(query: string) {
   });
 }
 
-export async function getTodayTodos() {
-  const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const endOfDay = new Date(startOfDay);
-  endOfDay.setDate(endOfDay.getDate() + 1);
-
-  const overdue = await prisma.todoItem.findMany({
-    where: {
-      completed: false,
-      dueDate: { lt: startOfDay },
-    },
-    include: { category: true },
-    orderBy: { dueDate: "asc" },
-  });
-
-  const dueToday = await prisma.todoItem.findMany({
-    where: {
-      completed: false,
-      dueDate: { gte: startOfDay, lt: endOfDay },
-    },
-    include: { category: true },
-    orderBy: { sortOrder: "asc" },
-  });
-
-  return { overdue, dueToday };
-}
-
-export async function getTodayCount() {
-  const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const endOfDay = new Date(startOfDay);
-  endOfDay.setDate(endOfDay.getDate() + 1);
-
-  const count = await prisma.todoItem.count({
-    where: {
-      completed: false,
-      dueDate: { lt: endOfDay },
-    },
-  });
-  return count;
-}
-
 export type ViewFilter = "overdue" | "upcoming" | "high-priority";
 
 export async function getFilteredTodos(filter: ViewFilter) {
