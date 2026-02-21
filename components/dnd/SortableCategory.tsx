@@ -34,7 +34,7 @@ export function SortableCategory({
     >
       <div
         ref={handleRef}
-        className="flex h-4 w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 opacity-0 transition-opacity group-hover/sort:opacity-100 active:cursor-grabbing ml-1 max-md:hidden"
+        className="flex h-4 w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 md:opacity-0 transition-opacity md:group-hover/sort:opacity-100 active:cursor-grabbing ml-1"
       >
         <GripVertical className="h-3.5 w-3.5" />
       </div>

@@ -146,7 +146,7 @@ export function TodoItemContent({
       {showGripHandle && (
         <div
           ref={handleRef as React.Ref<HTMLDivElement>}
-          className="flex h-4 w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing max-md:hidden"
+          className="flex h-4 w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 md:opacity-0 transition-opacity md:group-hover:opacity-100 active:cursor-grabbing"
         >
           <GripVertical className="h-4 w-4" />
         </div>
