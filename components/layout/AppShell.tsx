@@ -60,7 +60,7 @@ function AppShellInner({
   }
 
   return (
-    <div className="h-dvh overflow-hidden bg-background">
+    <div className="fixed inset-0 overflow-hidden bg-background">
       {/* Mobile: Sheet drawer */}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-64 p-0 bg-sidebar" showCloseButton={false}>
