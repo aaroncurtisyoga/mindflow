@@ -82,7 +82,7 @@ export function CategoryItem({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 md:h-6 md:w-6 md:opacity-0 md:group-hover:opacity-100"
+            className="h-10 w-10 md:h-6 md:w-6 md:opacity-0 md:group-hover:opacity-100"
             onClick={(e) => e.preventDefault()}
           >
             <MoreHorizontal className="h-3.5 w-3.5" />

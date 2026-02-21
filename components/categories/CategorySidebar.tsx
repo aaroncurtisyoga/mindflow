@@ -59,7 +59,7 @@ export function CategorySidebar({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-4 py-4">
+      <div className="flex items-center justify-between px-4 py-4" style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
         <h2 className="text-lg font-semibold tracking-tight">Mindflow</h2>
         {onCollapse && (
           <Button
@@ -161,7 +161,7 @@ export function CategorySidebar({
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 text-muted-foreground hover:text-foreground"
+            className="h-8 w-8 md:h-6 md:w-6 text-muted-foreground hover:text-foreground"
             onClick={() => setCreateOpen(true)}
             title="New category"
           >

@@ -177,7 +177,7 @@ export function TodoItemContent({
       {showGripHandle && (
         <div
           ref={handleRef as React.Ref<HTMLDivElement>}
-          className="flex h-6 w-6 md:h-4 md:w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 md:opacity-0 transition-opacity md:group-hover:opacity-100 active:cursor-grabbing"
+          className="flex h-11 w-8 md:h-4 md:w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 md:opacity-0 transition-opacity md:group-hover:opacity-100 active:cursor-grabbing"
         >
           <GripVertical className="h-4 w-4" />
         </div>
@@ -186,7 +186,7 @@ export function TodoItemContent({
       <AnimatedCheckbox
         checked={todo.completed}
         onCheckedChange={handleToggle}
-        className="shrink-0 h-5 w-5 md:h-4 md:w-4"
+        className="shrink-0 h-6 w-6 md:h-4 md:w-4"
       />
 
       <div className="flex-1 min-w-0">
@@ -330,7 +330,7 @@ export function TodoItemContent({
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 md:h-8 md:w-8 shrink-0 md:opacity-0 transition-opacity md:group-hover:opacity-100"
+            className="h-11 w-11 md:h-8 md:w-8 shrink-0 md:opacity-0 transition-opacity md:group-hover:opacity-100"
           >
             <MoreHorizontal className="h-4 w-4" />
           </Button>

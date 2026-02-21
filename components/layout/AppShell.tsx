@@ -69,7 +69,7 @@ function AppShellInner({
       {/* Mobile: Sheet drawer (only mount when not confirmed desktop) */}
       {isMobile !== false && (
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetContent side="left" className="w-64 p-0 bg-sidebar safe-area-pad" showCloseButton={false}>
+          <SheetContent side="left" className="w-[85vw] max-w-xs p-0 bg-sidebar" showCloseButton={false}>
             <VisuallyHidden.Root>
               <SheetTitle>Navigation</SheetTitle>
             </VisuallyHidden.Root>
