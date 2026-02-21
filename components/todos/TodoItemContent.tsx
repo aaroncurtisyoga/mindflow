@@ -5,6 +5,14 @@ import { GripVertical, Trash2, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -66,6 +74,7 @@ export function TodoItemContent({
   const [editTitle, setEditTitle] = useState(todo.title);
   const [isPending, startTransition] = useTransition();
   const [justCompleted, setJustCompleted] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   function handleToggle() {
     const wasCompleted = todo.completed;
@@ -272,6 +281,18 @@ export function TodoItemContent({
         </>
       )}
 
+      {!isMobile && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+          onClick={() => setConfirmDelete(true)}
+          title="Delete"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -297,12 +318,38 @@ export function TodoItemContent({
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+          <DropdownMenuItem onClick={() => setConfirmDelete(true)} className="text-destructive">
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete item?</DialogTitle>
+            <DialogDescription>
+              &ldquo;{todo.title}&rdquo; will be permanently deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              autoFocus
+              onClick={() => {
+                setConfirmDelete(false);
+                handleDelete();
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
