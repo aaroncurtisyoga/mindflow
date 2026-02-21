@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { PanelLeft } from "lucide-react";
 import { CategorySidebar } from "@/components/categories/CategorySidebar";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { useRealtimeSync } from "@/lib/hooks/useRealtimeSync";
 import { MobileSidebarProvider, useMobileSidebar } from "@/lib/contexts/MobileSidebarContext";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,8 @@ interface ViewCounts {
   highPriority: number;
 }
 
+const MOBILE_BREAKPOINT = 768;
+
 function AppShellInner({
   categories,
   todayCount,
@@ -36,9 +37,19 @@ function AppShellInner({
 }) {
   useRealtimeSync();
   const { open, setOpen } = useMobileSidebar();
-  const isMobile = useIsMobile();
   const sidebarRef = useRef<PanelImperativeHandle>(null);
   const [collapsed, setCollapsed] = useState(false);
+
+  // Track mobile vs desktop after mount to avoid SSR mismatch
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    check();
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    mql.addEventListener("change", check);
+    return () => mql.removeEventListener("change", check);
+  }, []);
 
   function toggleSidebar() {
     if (sidebarRef.current?.isCollapsed()) {
@@ -60,9 +71,23 @@ function AppShellInner({
         </SheetContent>
       </Sheet>
 
-      {isMobile ? (
+      {/* SSR/initial render: CSS-only layout that won't break */}
+      {isMobile === null && (
+        <div className="flex h-full">
+          <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar md:block">
+            <CategorySidebar categories={categories} todayCount={todayCount} viewCounts={viewCounts} />
+          </aside>
+          <main className="flex-1 overflow-auto">{children}</main>
+        </div>
+      )}
+
+      {/* Mobile: simple full-width layout */}
+      {isMobile === true && (
         <main className="h-full overflow-auto">{children}</main>
-      ) : (
+      )}
+
+      {/* Desktop: resizable panels (only after we know viewport) */}
+      {isMobile === false && (
         <ResizablePanelGroup orientation="horizontal" className="h-full">
           <ResizablePanel
             panelRef={sidebarRef}
