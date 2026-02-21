@@ -107,6 +107,8 @@ export function TodoItemContent({
             priority: captured.priority,
             dueDate: captured.dueDate ?? undefined,
             depth: captured.depth,
+            description: captured.description ?? undefined,
+            completed: captured.completed,
           });
         },
       },

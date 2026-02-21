@@ -33,7 +33,9 @@ export function DatePicker({ date, onChange, className }: DatePickerProps) {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const nextWeek = new Date(today);
-  nextWeek.setDate(nextWeek.getDate() + (8 - today.getDay())); // next Monday
+  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ...
+  const daysUntilNextMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek);
+  nextWeek.setDate(nextWeek.getDate() + daysUntilNextMonday);
 
   const relativeLabel = date ? formatRelativeDate(date) : null;
 

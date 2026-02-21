@@ -30,6 +30,7 @@ export function useSwipeGesture({
   const startX = useRef(0);
   const startY = useRef(0);
   const locked = useRef<"horizontal" | "vertical" | null>(null);
+  const swipeRef = useRef({ swiping: false, deltaX: 0 });
   const DEAD_ZONE = 10;
 
   const handleTouchStart = useCallback(
@@ -39,6 +40,7 @@ export function useSwipeGesture({
       startX.current = touch.clientX;
       startY.current = touch.clientY;
       locked.current = null;
+      swipeRef.current = { swiping: false, deltaX: 0 };
     },
     [enabled]
   );
@@ -57,6 +59,7 @@ export function useSwipeGesture({
 
       if (locked.current === "vertical") return;
 
+      swipeRef.current = { swiping: true, deltaX };
       setSwipeState({
         swiping: true,
         deltaX,
@@ -67,19 +70,22 @@ export function useSwipeGesture({
   );
 
   const handleTouchEnd = useCallback(() => {
-    if (!enabled || !swipeState.swiping) {
+    if (!enabled || !swipeRef.current.swiping) {
+      swipeRef.current = { swiping: false, deltaX: 0 };
       setSwipeState({ swiping: false, deltaX: 0, direction: null });
       return;
     }
 
-    if (swipeState.deltaX > threshold && onSwipeRight) {
+    const { deltaX } = swipeRef.current;
+    if (deltaX > threshold && onSwipeRight) {
       onSwipeRight();
-    } else if (swipeState.deltaX < -threshold && onSwipeLeft) {
+    } else if (deltaX < -threshold && onSwipeLeft) {
       onSwipeLeft();
     }
 
+    swipeRef.current = { swiping: false, deltaX: 0 };
     setSwipeState({ swiping: false, deltaX: 0, direction: null });
-  }, [enabled, swipeState, threshold, onSwipeLeft, onSwipeRight]);
+  }, [enabled, threshold, onSwipeLeft, onSwipeRight]);
 
   const swipeHandlers = useMemo(
     () =>

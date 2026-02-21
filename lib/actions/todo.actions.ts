@@ -25,6 +25,8 @@ export async function createTodo(data: {
   priority?: Priority;
   dueDate?: Date;
   depth?: number;
+  description?: string;
+  completed?: boolean;
 }) {
   const maxOrder = await prisma.todoItem.aggregate({
     where: { categoryId: data.categoryId },
@@ -39,6 +41,8 @@ export async function createTodo(data: {
       dueDate: data.dueDate,
       depth: data.depth ?? 0,
       sortOrder: (maxOrder._max.sortOrder ?? 0) + 1,
+      description: data.description,
+      completed: data.completed ?? false,
     },
   });
   revalidatePath("/");
@@ -131,7 +135,7 @@ export async function getTodayCount() {
   const count = await prisma.todoItem.count({
     where: {
       completed: false,
-      dueDate: { lte: endOfDay },
+      dueDate: { lt: endOfDay },
     },
   });
   return count;
@@ -159,7 +163,7 @@ export async function getFilteredTodos(filter: ViewFilter) {
       return prisma.todoItem.findMany({
         where: {
           completed: false,
-          dueDate: { gte: startOfDay, lte: endOfWeek },
+          dueDate: { gte: startOfDay, lt: endOfWeek },
         },
         include: { category: true },
         orderBy: { dueDate: "asc" },
@@ -188,7 +192,7 @@ export async function getViewCounts() {
       where: { completed: false, dueDate: { lt: startOfDay } },
     }),
     prisma.todoItem.count({
-      where: { completed: false, dueDate: { gte: startOfDay, lte: endOfWeek } },
+      where: { completed: false, dueDate: { gte: startOfDay, lt: endOfWeek } },
     }),
     prisma.todoItem.count({
       where: { completed: false, priority: "HIGH" },
