@@ -94,3 +94,106 @@ export async function searchTodos(query: string) {
     take: 20,
   });
 }
+
+export async function getTodayTodos() {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
+  const overdue = await prisma.todoItem.findMany({
+    where: {
+      completed: false,
+      dueDate: { lt: startOfDay },
+    },
+    include: { category: true },
+    orderBy: { dueDate: "asc" },
+  });
+
+  const dueToday = await prisma.todoItem.findMany({
+    where: {
+      completed: false,
+      dueDate: { gte: startOfDay, lt: endOfDay },
+    },
+    include: { category: true },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  return { overdue, dueToday };
+}
+
+export async function getTodayCount() {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
+  const count = await prisma.todoItem.count({
+    where: {
+      completed: false,
+      dueDate: { lte: endOfDay },
+    },
+  });
+  return count;
+}
+
+export type ViewFilter = "overdue" | "upcoming" | "high-priority";
+
+export async function getFilteredTodos(filter: ViewFilter) {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  switch (filter) {
+    case "overdue":
+      return prisma.todoItem.findMany({
+        where: {
+          completed: false,
+          dueDate: { lt: startOfDay },
+        },
+        include: { category: true },
+        orderBy: { dueDate: "asc" },
+      });
+    case "upcoming": {
+      const endOfWeek = new Date(startOfDay);
+      endOfWeek.setDate(endOfWeek.getDate() + 7);
+      return prisma.todoItem.findMany({
+        where: {
+          completed: false,
+          dueDate: { gte: startOfDay, lte: endOfWeek },
+        },
+        include: { category: true },
+        orderBy: { dueDate: "asc" },
+      });
+    }
+    case "high-priority":
+      return prisma.todoItem.findMany({
+        where: {
+          completed: false,
+          priority: "HIGH",
+        },
+        include: { category: true },
+        orderBy: { sortOrder: "asc" },
+      });
+  }
+}
+
+export async function getViewCounts() {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfWeek = new Date(startOfDay);
+  endOfWeek.setDate(endOfWeek.getDate() + 7);
+
+  const [overdue, upcoming, highPriority] = await Promise.all([
+    prisma.todoItem.count({
+      where: { completed: false, dueDate: { lt: startOfDay } },
+    }),
+    prisma.todoItem.count({
+      where: { completed: false, dueDate: { gte: startOfDay, lte: endOfWeek } },
+    }),
+    prisma.todoItem.count({
+      where: { completed: false, priority: "HIGH" },
+    }),
+  ]);
+
+  return { overdue, upcoming, highPriority };
+}

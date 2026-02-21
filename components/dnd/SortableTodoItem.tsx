@@ -1,37 +1,16 @@
 "use client";
 
 import { useSortable } from "@dnd-kit/react/sortable";
-import { GripVertical, Trash2, Calendar, MoreHorizontal } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toggleTodo, updateTodo, deleteTodo } from "@/lib/actions/todo.actions";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import type { TodoItem as TodoItemType, Priority } from "@prisma/client";
-
-const PRIORITY_COLORS: Record<Priority, string> = {
-  NONE: "transparent",
-  LOW: "#3B82F6",
-  MEDIUM: "#F59E0B",
-  HIGH: "#EF4444",
-};
-
-const PRIORITY_LABELS: Record<Priority, string> = {
-  NONE: "None",
-  LOW: "Low",
-  MEDIUM: "Medium",
-  HIGH: "High",
-};
+import { TodoItemContent } from "@/components/todos/TodoItemContent";
+import { useSwipeGesture } from "@/lib/hooks/useSwipeGesture";
+import { toggleTodo, deleteTodo, createTodo } from "@/lib/actions/todo.actions";
+import { toast } from "sonner";
+import { Check, Trash2 } from "lucide-react";
+import type { TodoItem as TodoItemType } from "@prisma/client";
 
 export function SortableTodoItem({
   todo,
@@ -47,167 +26,111 @@ export function SortableTodoItem({
   });
 
   const isMobile = useIsMobile();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(todo.title);
   const [isPending, startTransition] = useTransition();
+  const itemRef = useRef<HTMLDivElement>(null);
 
-  function handleToggle() {
+  const handleSwipeRight = useCallback(() => {
+    if (isMobile) {
+      try { navigator.vibrate?.(10); } catch {}
+    }
     startTransition(async () => {
       await toggleTodo(todo.id);
     });
-  }
+  }, [todo.id, isMobile, startTransition]);
 
-  function handleSaveTitle() {
-    if (editTitle.trim() && editTitle !== todo.title) {
-      startTransition(async () => {
-        await updateTodo(todo.id, { title: editTitle.trim() });
-      });
-    }
-    setIsEditing(false);
-  }
-
-  function handleDelete() {
+  const handleSwipeLeft = useCallback(() => {
+    const captured = { ...todo };
     startTransition(async () => {
       await deleteTodo(todo.id);
     });
-  }
-
-  function handlePriorityChange(priority: Priority) {
-    startTransition(async () => {
-      await updateTodo(todo.id, { priority });
+    toast("Task deleted", {
+      description: captured.title,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          createTodo({
+            title: captured.title,
+            categoryId: captured.categoryId,
+            parentId: captured.parentId ?? undefined,
+            priority: captured.priority,
+            dueDate: captured.dueDate ?? undefined,
+            depth: captured.depth,
+          });
+        },
+      },
+      duration: 5000,
     });
-  }
+  }, [todo, startTransition]);
 
-  const formattedDate = todo.dueDate
-    ? new Date(todo.dueDate).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      })
-    : null;
-
-  const timestamp = todo.updatedAt > todo.createdAt ? todo.updatedAt : todo.createdAt;
-  const formattedTimestamp = new Date(timestamp).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
+  const { swipeHandlers, swipeState } = useSwipeGesture({
+    onSwipeRight: handleSwipeRight,
+    onSwipeLeft: handleSwipeLeft,
+    threshold: 80,
+    enabled: isMobile,
   });
-  const isUpdated = todo.updatedAt > todo.createdAt;
+
+  const showSwipeRight = swipeState.deltaX > 10;
+  const showSwipeLeft = swipeState.deltaX < -10;
 
   return (
     <motion.div
       ref={ref}
       layout
+      exit={{ opacity: 0, x: -40, transition: { duration: 0.3 } }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
-        "group flex items-center gap-2 rounded-md px-2 py-2.5 transition-colors",
+        "relative overflow-hidden rounded-md",
         isDragging && "opacity-50 scale-[1.02] shadow-lg",
         isDropTarget && "border-2 border-primary/50 bg-primary/5",
-        !isDragging && "hover:bg-accent/50",
-        todo.completed && "opacity-60"
       )}
-      style={{ paddingLeft: `${todo.depth * (isMobile ? 16 : 24) + 8}px` }}
     >
-      <div
-        ref={handleRef}
-        className="flex h-4 w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing max-md:hidden"
-      >
-        <GripVertical className="h-4 w-4" />
-      </div>
-
-      <Checkbox
-        checked={todo.completed}
-        onCheckedChange={handleToggle}
-        className="shrink-0"
-      />
-
-      <span
-        className="hidden shrink-0 cursor-pointer font-mono text-xs text-muted-foreground/50 hover:text-muted-foreground md:inline"
-        onClick={() => navigator.clipboard.writeText(`#${todo.shortId}`)}
-        title="Click to copy"
-      >
-        #{todo.shortId}
-      </span>
-
-      {isEditing ? (
-        <Input
-          value={editTitle}
-          onChange={(e) => setEditTitle(e.target.value)}
-          onBlur={handleSaveTitle}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSaveTitle();
-            if (e.key === "Escape") {
-              setEditTitle(todo.title);
-              setIsEditing(false);
-            }
-          }}
-          className="h-7 flex-1 text-sm"
-          autoFocus
-        />
-      ) : (
-        <span
-          className={cn(
-            "flex-1 cursor-text truncate text-sm",
-            todo.completed && "line-through text-muted-foreground"
-          )}
-          onClick={isMobile ? () => setIsEditing(true) : undefined}
-          onDoubleClick={!isMobile ? () => setIsEditing(true) : undefined}
-        >
-          {todo.title}
-        </span>
-      )}
-
-      {todo.priority !== "NONE" && (
-        <div
-          className="h-2 w-2 shrink-0 rounded-full"
-          style={{ backgroundColor: PRIORITY_COLORS[todo.priority] }}
-          title={PRIORITY_LABELS[todo.priority]}
-        />
-      )}
-
-      {formattedDate && (
-        <span className="shrink-0 flex items-center gap-1 text-xs text-muted-foreground">
-          <Calendar className="h-3 w-3" />
-          {formattedDate}
-        </span>
-      )}
-
-      <span
-        className="hidden shrink-0 font-mono text-[10px] text-muted-foreground/40 md:inline"
-        title={`${isUpdated ? "Updated" : "Created"}: ${new Date(timestamp).toLocaleString()}`}
-      >
-        {isUpdated ? "edited " : ""}{formattedTimestamp}
-      </span>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 shrink-0 md:opacity-0 transition-opacity md:group-hover:opacity-100"
+      {/* Swipe reveal backgrounds */}
+      {isMobile && (
+        <>
+          <div
+            className={cn(
+              "absolute inset-y-0 left-0 flex items-center px-4 transition-opacity",
+              showSwipeRight ? "opacity-100" : "opacity-0"
+            )}
+            style={{ backgroundColor: "#10B981", width: Math.max(0, swipeState.deltaX) }}
           >
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setIsEditing(true)}>
-            Edit title
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {(["NONE", "LOW", "MEDIUM", "HIGH"] as Priority[]).map((p) => (
-            <DropdownMenuItem key={p} onClick={() => handlePriorityChange(p)}>
-              <div
-                className="mr-2 h-2 w-2 rounded-full"
-                style={{ backgroundColor: PRIORITY_COLORS[p] }}
-              />
-              {PRIORITY_LABELS[p]} priority
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <Check className="h-5 w-5 text-white" />
+          </div>
+          <div
+            className={cn(
+              "absolute inset-y-0 right-0 flex items-center justify-end px-4 transition-opacity",
+              showSwipeLeft ? "opacity-100" : "opacity-0"
+            )}
+            style={{ backgroundColor: "#EF4444", width: Math.max(0, -swipeState.deltaX) }}
+          >
+            <Trash2 className="h-5 w-5 text-white" />
+          </div>
+        </>
+      )}
+
+      <div
+        ref={itemRef}
+        tabIndex={0}
+        data-todo-id={todo.id}
+        className={cn(
+          "group relative flex items-center gap-2 rounded-md px-2 py-2.5 transition-colors bg-background",
+          !isDragging && "hover:bg-accent/50",
+          todo.completed && "opacity-60",
+          "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:outline-none"
+        )}
+        style={{
+          paddingLeft: `${todo.depth * (isMobile ? 16 : 24) + 8}px`,
+          transform: swipeState.swiping ? `translateX(${swipeState.deltaX}px)` : undefined,
+          transition: swipeState.swiping ? "none" : "transform 0.2s ease-out",
+        }}
+        {...swipeHandlers}
+      >
+        <TodoItemContent
+          todo={todo}
+          showGripHandle={true}
+          handleRef={handleRef}
+        />
+      </div>
     </motion.div>
   );
 }

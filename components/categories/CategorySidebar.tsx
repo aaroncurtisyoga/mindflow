@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useOptimistic } from "react";
 import { usePathname } from "next/navigation";
-import { Plus, LogOut } from "lucide-react";
+import Link from "next/link";
+import { Plus, LogOut, Sun, AlertTriangle, CalendarDays, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DndProvider } from "@/components/dnd/DndProvider";
@@ -10,12 +11,27 @@ import { SortableCategory } from "@/components/dnd/SortableCategory";
 import { CreateCategoryDialog } from "./CreateCategoryDialog";
 import { reorderCategories } from "@/lib/actions/category.actions";
 import { logout } from "@/lib/actions/auth.actions";
+import { cn } from "@/lib/utils";
 import type { Category } from "@prisma/client";
 type DragEndEvent = { operation: { source: { id: string | number; data: unknown } | null; target: { id: string | number; data: unknown } | null } };
 
 type CategoryWithCount = Category & { _count: { items: number } };
 
-export function CategorySidebar({ categories }: { categories: CategoryWithCount[] }) {
+interface ViewCounts {
+  overdue: number;
+  upcoming: number;
+  highPriority: number;
+}
+
+export function CategorySidebar({
+  categories,
+  todayCount = 0,
+  viewCounts = { overdue: 0, upcoming: 0, highPriority: 0 },
+}: {
+  categories: CategoryWithCount[];
+  todayCount?: number;
+  viewCounts?: ViewCounts;
+}) {
   const pathname = usePathname();
   const [createOpen, setCreateOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -54,6 +70,91 @@ export function CategorySidebar({ categories }: { categories: CategoryWithCount[
       </div>
 
       <ScrollArea className="flex-1 px-2">
+        {/* Today */}
+        <Link
+          href="/today"
+          className={cn(
+            "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+            pathname === "/today"
+              ? "bg-accent text-accent-foreground"
+              : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+          )}
+        >
+          <Sun className="h-4 w-4 text-yellow-500" />
+          <span className="flex-1">Today</span>
+          {todayCount > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-xs font-medium text-primary">
+              {todayCount}
+            </span>
+          )}
+        </Link>
+
+        {/* Smart Views */}
+        <div className="mt-4 mb-2">
+          <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            Views
+          </p>
+        </div>
+        <div className="space-y-0.5">
+          <Link
+            href="/view/overdue"
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-1.5 text-sm transition-colors",
+              pathname === "/view/overdue"
+                ? "bg-accent text-accent-foreground"
+                : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+            )}
+          >
+            <AlertTriangle className="h-4 w-4 text-red-500" />
+            <span className="flex-1">Overdue</span>
+            {viewCounts.overdue > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500/15 px-1.5 text-xs font-medium text-red-400">
+                {viewCounts.overdue}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/view/upcoming"
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-1.5 text-sm transition-colors",
+              pathname === "/view/upcoming"
+                ? "bg-accent text-accent-foreground"
+                : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+            )}
+          >
+            <CalendarDays className="h-4 w-4 text-blue-500" />
+            <span className="flex-1">Upcoming</span>
+            {viewCounts.upcoming > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500/15 px-1.5 text-xs font-medium text-blue-400">
+                {viewCounts.upcoming}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/view/high-priority"
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-1.5 text-sm transition-colors",
+              pathname === "/view/high-priority"
+                ? "bg-accent text-accent-foreground"
+                : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+            )}
+          >
+            <Flame className="h-4 w-4 text-amber-500" />
+            <span className="flex-1">High Priority</span>
+            {viewCounts.highPriority > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500/15 px-1.5 text-xs font-medium text-amber-400">
+                {viewCounts.highPriority}
+              </span>
+            )}
+          </Link>
+        </div>
+
+        {/* Categories */}
+        <div className="mt-4 mb-2">
+          <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+            Categories
+          </p>
+        </div>
         <DndProvider onDragEnd={handleDragEnd}>
           <div className="space-y-1">
             {optimisticCategories.map((category, index) => (

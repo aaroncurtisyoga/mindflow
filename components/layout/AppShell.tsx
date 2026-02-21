@@ -10,11 +10,21 @@ import type { Category } from "@prisma/client";
 
 type CategoryWithCount = Category & { _count: { items: number } };
 
+interface ViewCounts {
+  overdue: number;
+  upcoming: number;
+  highPriority: number;
+}
+
 function AppShellInner({
   categories,
+  todayCount,
+  viewCounts,
   children,
 }: {
   categories: CategoryWithCount[];
+  todayCount: number;
+  viewCounts: ViewCounts;
   children: React.ReactNode;
 }) {
   useRealtimeSync();
@@ -23,7 +33,7 @@ function AppShellInner({
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar md:block">
-        <CategorySidebar categories={categories} />
+        <CategorySidebar categories={categories} todayCount={todayCount} viewCounts={viewCounts} />
       </aside>
 
       <Sheet open={open} onOpenChange={setOpen}>
@@ -31,7 +41,7 @@ function AppShellInner({
           <VisuallyHidden.Root>
             <SheetTitle>Navigation</SheetTitle>
           </VisuallyHidden.Root>
-          <CategorySidebar categories={categories} />
+          <CategorySidebar categories={categories} todayCount={todayCount} viewCounts={viewCounts} />
         </SheetContent>
       </Sheet>
 
@@ -43,14 +53,20 @@ function AppShellInner({
 
 export function AppShell({
   categories,
+  todayCount,
+  viewCounts,
   children,
 }: {
   categories: CategoryWithCount[];
+  todayCount: number;
+  viewCounts: ViewCounts;
   children: React.ReactNode;
 }) {
   return (
     <MobileSidebarProvider>
-      <AppShellInner categories={categories}>{children}</AppShellInner>
+      <AppShellInner categories={categories} todayCount={todayCount} viewCounts={viewCounts}>
+        {children}
+      </AppShellInner>
     </MobileSidebarProvider>
   );
 }
