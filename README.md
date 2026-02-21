@@ -51,6 +51,10 @@ yarn db:push
 yarn db:studio
 ```
 
+```bash
+npx kill-port 3000
+```
+
 ## MCP Server
 
 The MCP server lives in `packages/mcp-server/` and connects directly to the same Supabase Postgres database. Writes from Claude automatically sync to the UI via Supabase Realtime.

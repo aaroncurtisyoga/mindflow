@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toggleTodo, updateTodo, deleteTodo } from "@/lib/actions/todo.actions";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import type { TodoItem as TodoItemType, Priority } from "@prisma/client";
@@ -45,6 +46,7 @@ export function SortableTodoItem({
     data: { type: "todo", todo },
   });
 
+  const isMobile = useIsMobile();
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
   const [isPending, startTransition] = useTransition();
@@ -83,6 +85,13 @@ export function SortableTodoItem({
       })
     : null;
 
+  const timestamp = todo.updatedAt > todo.createdAt ? todo.updatedAt : todo.createdAt;
+  const formattedTimestamp = new Date(timestamp).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  const isUpdated = todo.updatedAt > todo.createdAt;
+
   return (
     <motion.div
       ref={ref}
@@ -95,11 +104,11 @@ export function SortableTodoItem({
         !isDragging && "hover:bg-accent/50",
         todo.completed && "opacity-60"
       )}
-      style={{ paddingLeft: `${todo.depth * 24 + 8}px` }}
+      style={{ paddingLeft: `${todo.depth * (isMobile ? 16 : 24) + 8}px` }}
     >
       <div
         ref={handleRef}
-        className="flex h-4 w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+        className="flex h-4 w-4 shrink-0 cursor-grab items-center justify-center text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing max-md:hidden"
       >
         <GripVertical className="h-4 w-4" />
       </div>
@@ -111,7 +120,7 @@ export function SortableTodoItem({
       />
 
       <span
-        className="shrink-0 cursor-pointer font-mono text-xs text-muted-foreground/50 hover:text-muted-foreground"
+        className="hidden shrink-0 cursor-pointer font-mono text-xs text-muted-foreground/50 hover:text-muted-foreground md:inline"
         onClick={() => navigator.clipboard.writeText(`#${todo.shortId}`)}
         title="Click to copy"
       >
@@ -160,12 +169,19 @@ export function SortableTodoItem({
         </span>
       )}
 
+      <span
+        className="hidden shrink-0 font-mono text-[10px] text-muted-foreground/40 md:inline"
+        title={`${isUpdated ? "Updated" : "Created"}: ${new Date(timestamp).toLocaleString()}`}
+      >
+        {isUpdated ? "edited " : ""}{formattedTimestamp}
+      </span>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+            className="h-7 w-7 shrink-0 md:opacity-0 transition-opacity md:group-hover:opacity-100"
           >
             <MoreHorizontal className="h-4 w-4" />
           </Button>

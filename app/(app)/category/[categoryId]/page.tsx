@@ -2,6 +2,7 @@ import { getTodosByCategory } from "@/lib/actions/todo.actions";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { TodoList } from "@/components/todos/TodoList";
+import { MobileHeader } from "@/components/layout/MobileHeader";
 
 export default async function CategoryPage({
   params,
@@ -17,7 +18,8 @@ export default async function CategoryPage({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b border-border px-6 py-4">
+      <MobileHeader categoryName={category.name} categoryColor={category.color} />
+      <div className="hidden items-center gap-3 border-b border-border px-6 py-4 md:flex">
         <div
           className="h-3 w-3 rounded-full"
           style={{ backgroundColor: category.color }}

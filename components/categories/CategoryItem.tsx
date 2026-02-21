@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useMobileSidebar } from "@/lib/contexts/MobileSidebarContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ export function CategoryItem({
   category: CategoryWithCount;
   isActive: boolean;
 }) {
+  const { close } = useMobileSidebar();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(category.name);
 
@@ -61,6 +63,7 @@ export function CategoryItem({
   return (
     <Link
       href={`/category/${category.id}`}
+      onClick={close}
       className={cn(
         "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
         isActive
@@ -79,7 +82,7 @@ export function CategoryItem({
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100"
+            className="h-6 w-6 md:opacity-0 md:group-hover:opacity-100"
             onClick={(e) => e.preventDefault()}
           >
             <MoreHorizontal className="h-3.5 w-3.5" />

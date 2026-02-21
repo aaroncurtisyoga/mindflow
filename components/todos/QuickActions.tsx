@@ -34,7 +34,7 @@ export function QuickActions({ todoId }: { todoId: string }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {ACTIONS.map(({ type, label, icon: Icon }) => (
           <Button
             key={type}

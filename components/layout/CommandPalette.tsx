@@ -30,8 +30,15 @@ export function CommandPalette({ categories }: { categories: CategoryWithCount[]
         setOpen((prev) => !prev);
       }
     }
+    function handleCustomOpen() {
+      setOpen(true);
+    }
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("open-command-palette", handleCustomOpen);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("open-command-palette", handleCustomOpen);
+    };
   }, []);
 
   useEffect(() => {
