@@ -1,32 +1,22 @@
 import type { NextAuthConfig } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { compare } from "bcryptjs";
+import Google from "next-auth/providers/google";
 
 export const authConfig: NextAuthConfig = {
   providers: [
-    Credentials({
-      name: "Password",
-      credentials: {
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        const password = credentials?.password as string;
-        if (!password) return null;
-
-        const hash = process.env.ADMIN_PASSWORD_HASH;
-        if (!hash) return null;
-
-        const isValid = await compare(password, hash);
-        if (!isValid) return null;
-
-        return { id: "admin", name: "Admin" };
-      },
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
   pages: {
     signIn: "/login",
   },
   callbacks: {
+    async signIn({ profile }) {
+      const allowed = process.env.ALLOWED_EMAIL;
+      if (!allowed) return false;
+      return profile?.email === allowed;
+    },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnLogin = nextUrl.pathname === "/login";

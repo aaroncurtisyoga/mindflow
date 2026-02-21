@@ -4,7 +4,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string(),
   DIRECT_URL: z.string().optional(),
   AUTH_SECRET: z.string(),
-  ADMIN_PASSWORD_HASH: z.string(),
+  ALLOWED_EMAIL: z.string(),
   NEXT_PUBLIC_SUPABASE_URL: z.string().optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),

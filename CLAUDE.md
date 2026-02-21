@@ -7,7 +7,7 @@ AI-powered todo app. Single-user, dark-mode-first, with nested categories, drag-
 - **Next.js 16.1.6** + React 19 + TypeScript (App Router, Turbopack)
 - **Tailwind CSS 4** + shadcn/ui (new-york style, 17 components in `components/ui/`)
 - **Prisma 7** + Supabase Postgres (`@prisma/adapter-pg`, NOT `datasourceUrl`)
-- **Auth.js v5** (Credentials provider, single password, bcrypt hash in env)
+- **Auth.js v5** (Google OAuth provider, single allowed email)
 - **@dnd-kit/react 0.3** (React 19 compatible, `useSortable` API)
 - **Supabase Realtime** for cross-client sync (MCP writes → UI updates)
 - **MCP server** in `packages/mcp-server/` for Claude Desktop/Claude Code
@@ -48,7 +48,7 @@ npx tsc --noEmit     # Type-check (no test suite yet)
 ## Architecture
 
 ```
-app/(auth)/login/       → Password login page
+app/(auth)/login/       → Google OAuth login page
 app/(app)/              → Authed app shell (layout fetches categories from DB)
   inbox/                → Redirects to first category (or shows empty state)
   category/[categoryId] → Category view with sortable todo list
@@ -65,8 +65,9 @@ app/api/
 4. **Optimistic updates** via React 19 `useOptimistic` for drag-and-drop reordering
 
 ### Auth Model
-- Single user, password-only. Hash stored in `ADMIN_PASSWORD_HASH` env var.
+- Single user, Google OAuth. Allowed email in `ALLOWED_EMAIL` env var.
 - Auth.js v5 with JWT sessions (no DB sessions).
+- `signIn` callback rejects any email that doesn't match `ALLOWED_EMAIL`.
 - `proxy.ts` protects all routes except `/login`, `/api/auth/*`, and static assets.
 
 ## Database Schema
@@ -114,4 +115,4 @@ Short IDs work everywhere — pass `#42` to any tool that accepts an ID.
 
 ## Env Vars
 
-All documented in `.env.example`. Required: `DATABASE_URL`, `AUTH_SECRET`, `ADMIN_PASSWORD_HASH`. Optional: Supabase keys (for Realtime), `ANTHROPIC_API_KEY` (for AI actions), Google OAuth creds.
+All documented in `.env.example`. Required: `DATABASE_URL`, `AUTH_SECRET`, `ALLOWED_EMAIL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`. Optional: Supabase keys (for Realtime), `ANTHROPIC_API_KEY` (for AI actions).

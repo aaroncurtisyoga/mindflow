@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["tsx", "packages/mcp-server/src/index.ts"],
       "env": {
-        "DATABASE_URL": "${DATABASE_URL}"
+        "DATABASE_URL": "postgresql://postgres.gffmowxztexryfguguku:MoreYoga2026%21@aws-1-us-east-1.pooler.supabase.com:6543/postgres"
       }
     }
   }
