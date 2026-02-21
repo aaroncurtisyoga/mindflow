@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { GripVertical, Trash2, MoreHorizontal } from "lucide-react";
+import { useState, useTransition, useRef, useEffect } from "react";
+import { GripVertical, Trash2, MoreHorizontal, FileText, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -75,6 +76,9 @@ export function TodoItemContent({
   const [isPending, startTransition] = useTransition();
   const [justCompleted, setJustCompleted] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editDescription, setEditDescription] = useState(todo.description ?? "");
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   function handleToggle() {
     const wasCompleted = todo.completed;
@@ -143,6 +147,22 @@ export function TodoItemContent({
     });
   }
 
+  function handleSaveDescription() {
+    const trimmed = editDescription.trim();
+    const current = todo.description ?? "";
+    if (trimmed !== current) {
+      startTransition(async () => {
+        await updateTodo(todo.id, { description: trimmed || undefined });
+      });
+    }
+    setIsEditingDescription(false);
+  }
+
+  function handleCopyId() {
+    navigator.clipboard.writeText(`#${todo.shortId}`);
+    toast("Copied", { description: `#${todo.shortId}`, duration: 1500 });
+  }
+
   const timestamp = todo.updatedAt > todo.createdAt ? todo.updatedAt : todo.createdAt;
   const formattedTimestamp = new Date(timestamp).toLocaleDateString("en-US", {
     month: "short",
@@ -169,7 +189,7 @@ export function TodoItemContent({
 
       <span
         className="hidden shrink-0 cursor-pointer font-mono text-sm text-muted-foreground/50 hover:text-muted-foreground md:inline"
-        onClick={() => navigator.clipboard.writeText(`#${todo.shortId}`)}
+        onClick={handleCopyId}
         title="Click to copy"
       >
         #{todo.shortId}
@@ -209,9 +229,47 @@ export function TodoItemContent({
           </span>
         )}
 
+        {/* Description display */}
+        {!isEditing && !isEditingDescription && todo.description && (
+          <p
+            className="mt-0.5 text-sm text-muted-foreground/70 line-clamp-2 cursor-text"
+            onClick={() => { setEditDescription(todo.description ?? ""); setIsEditingDescription(true); }}
+          >
+            {todo.description}
+          </p>
+        )}
+
+        {/* Description editor */}
+        {isEditingDescription && (
+          <Textarea
+            ref={descriptionRef}
+            value={editDescription}
+            onChange={(e) => setEditDescription(e.target.value)}
+            onBlur={handleSaveDescription}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setEditDescription(todo.description ?? "");
+                setIsEditingDescription(false);
+              }
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                handleSaveDescription();
+              }
+            }}
+            placeholder="Add details..."
+            className="mt-1 min-h-[60px] border-none bg-accent/50 text-sm shadow-none focus-visible:ring-0 p-2"
+            autoFocus
+          />
+        )}
+
         {/* Mobile: meta row below title */}
         {!isEditing && isMobile && (
           <div className="flex items-center gap-2 mt-0.5">
+            <button
+              onClick={handleCopyId}
+              className="shrink-0 font-mono text-[11px] text-muted-foreground/50 active:text-muted-foreground"
+            >
+              #{todo.shortId}
+            </button>
             {showCategoryBadge && categoryName && (
               <span
                 className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
@@ -256,6 +314,16 @@ export function TodoItemContent({
             >
               {categoryName}
             </span>
+          )}
+
+          {todo.description && (
+            <button
+              className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground"
+              onClick={() => { setEditDescription(todo.description ?? ""); setIsEditingDescription(true); }}
+              title="Has notes — click to edit"
+            >
+              <FileText className="h-3.5 w-3.5" />
+            </button>
           )}
 
           {todo.priority !== "NONE" && (
@@ -304,8 +372,17 @@ export function TodoItemContent({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleCopyId}>
+            <Copy className="mr-2 h-4 w-4" />
+            Copy #{todo.shortId}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => { setEditTitle(todo.title); setIsEditing(true); }}>
             Edit title
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => { setEditDescription(todo.description ?? ""); setIsEditingDescription(true); }}>
+            <FileText className="mr-2 h-4 w-4" />
+            {todo.description ? "Edit notes" : "Add notes"}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {PRIORITY_ORDER.map((p) => (
