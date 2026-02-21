@@ -27,7 +27,7 @@ export function CreateTodoInput({ categoryId }: { categoryId: string }) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         disabled={isPending}
-        className="h-11 md:h-9 border-none bg-transparent text-base md:text-sm shadow-none focus-visible:ring-0"
+        className="h-11 md:h-10 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
       />
       {title.trim() && (
         <Button

@@ -53,7 +53,7 @@ export function CategoryItem({
             if (e.key === "Enter") handleRename();
             if (e.key === "Escape") setIsEditing(false);
           }}
-          className="h-10 md:h-8 text-base md:text-sm"
+          className="h-10 md:h-8 text-base"
           autoFocus
         />
       </div>
@@ -65,7 +65,7 @@ export function CategoryItem({
       href={`/category/${category.id}`}
       onClick={close}
       className={cn(
-        "group flex items-center gap-3 rounded-md px-3 py-2.5 md:py-2 text-base md:text-sm transition-colors",
+        "group flex items-center gap-3 rounded-md px-3 py-2.5 md:py-2 text-base md:text-[15px] transition-colors",
         isActive
           ? "bg-accent text-accent-foreground"
           : "text-sidebar-foreground hover:bg-accent/50"

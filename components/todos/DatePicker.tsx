@@ -46,12 +46,12 @@ export function DatePicker({ date, onChange, className }: DatePickerProps) {
           variant="ghost"
           size="sm"
           className={cn(
-            "h-8 md:h-6 gap-1 px-2 md:px-1.5 text-xs text-muted-foreground hover:text-foreground",
+            "h-8 md:h-7 gap-1 px-2 text-sm md:text-xs text-muted-foreground hover:text-foreground",
             date && relativeLabel?.overdue && "text-red-400 hover:text-red-300",
             className
           )}
         >
-          <CalendarIcon className="h-3.5 w-3.5 md:h-3 md:w-3" />
+          <CalendarIcon className="h-3.5 w-3.5" />
           {relativeLabel ? relativeLabel.label : "Set date"}
         </Button>
       </PopoverTrigger>

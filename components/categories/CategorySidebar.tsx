@@ -74,7 +74,7 @@ export function CategorySidebar({
         <Link
           href="/today"
           className={cn(
-            "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-2 text-base md:text-sm transition-colors",
+            "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-2 text-base md:text-[15px] transition-colors",
             pathname === "/today"
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -99,7 +99,7 @@ export function CategorySidebar({
           <Link
             href="/view/overdue"
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-sm transition-colors",
+              "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-[15px] transition-colors",
               pathname === "/view/overdue"
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -116,7 +116,7 @@ export function CategorySidebar({
           <Link
             href="/view/upcoming"
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-sm transition-colors",
+              "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-[15px] transition-colors",
               pathname === "/view/upcoming"
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
@@ -133,7 +133,7 @@ export function CategorySidebar({
           <Link
             href="/view/high-priority"
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-sm transition-colors",
+              "flex items-center gap-3 rounded-md px-3 py-2.5 md:py-1.5 text-base md:text-[15px] transition-colors",
               pathname === "/view/high-priority"
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"

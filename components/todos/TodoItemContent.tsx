@@ -159,7 +159,7 @@ export function TodoItemContent({
       />
 
       <span
-        className="hidden shrink-0 cursor-pointer font-mono text-xs text-muted-foreground/50 hover:text-muted-foreground md:inline"
+        className="hidden shrink-0 cursor-pointer font-mono text-sm text-muted-foreground/50 hover:text-muted-foreground md:inline"
         onClick={() => navigator.clipboard.writeText(`#${todo.shortId}`)}
         title="Click to copy"
       >
@@ -179,13 +179,13 @@ export function TodoItemContent({
                 setIsEditing(false);
               }
             }}
-            className="h-8 md:h-7 flex-1 text-base md:text-sm"
+            className="h-8 md:h-7 flex-1 text-base"
             autoFocus
           />
         ) : (
           <span
             className={cn(
-              "block truncate text-base md:text-sm cursor-text transition-all",
+              "block truncate text-base cursor-text transition-all",
               todo.completed && "text-muted-foreground",
               justCompleted && "line-through text-muted-foreground"
             )}
@@ -205,7 +205,7 @@ export function TodoItemContent({
           <div className="flex items-center gap-2 mt-0.5">
             {showCategoryBadge && categoryName && (
               <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
                 style={{
                   backgroundColor: `${categoryColor}20`,
                   color: categoryColor,
@@ -239,7 +239,7 @@ export function TodoItemContent({
         <>
           {showCategoryBadge && categoryName && (
             <span
-              className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium"
+              className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
               style={{
                 backgroundColor: `${categoryColor}20`,
                 color: categoryColor,
@@ -252,7 +252,7 @@ export function TodoItemContent({
           {todo.priority !== "NONE" && (
             <button
               onClick={cyclePriority}
-              className="h-2 w-2 shrink-0 rounded-full transition-transform hover:scale-150"
+              className="h-2.5 w-2.5 shrink-0 rounded-full transition-transform hover:scale-150"
               style={{ backgroundColor: PRIORITY_COLORS[todo.priority] }}
               title={`${PRIORITY_LABELS[todo.priority]} priority — click to cycle`}
             />
@@ -264,7 +264,7 @@ export function TodoItemContent({
           />
 
           <span
-            className="shrink-0 font-mono text-[10px] text-muted-foreground/40"
+            className="shrink-0 font-mono text-xs text-muted-foreground/40"
             title={`${isUpdated ? "Updated" : "Created"}: ${new Date(timestamp).toLocaleString()}`}
           >
             {isUpdated ? "edited " : ""}{formattedTimestamp}
@@ -277,7 +277,7 @@ export function TodoItemContent({
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 md:h-7 md:w-7 shrink-0 md:opacity-0 transition-opacity md:group-hover:opacity-100"
+            className="h-9 w-9 md:h-8 md:w-8 shrink-0 md:opacity-0 transition-opacity md:group-hover:opacity-100"
           >
             <MoreHorizontal className="h-4 w-4" />
           </Button>
